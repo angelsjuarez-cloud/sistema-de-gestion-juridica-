@@ -4,7 +4,7 @@
 {% block encabezado %}Tareas y pendientes{% endblock %}
 
 {% block contenido %}
-<div class="grid grid-2 ajuste-pantalla-tareas" style="align-items:start;">
+<div class="grid grid-2" style="align-items:start;">
   <div class="card">
     <div class="card-header">
       <h3>{{ tareas|length }} tarea(s) {{ 'visibles para ti' if not current_user.es_admin else 'en el sistema' }}</h3>
