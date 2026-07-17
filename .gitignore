@@ -1,0 +1,14 @@
+# Datos reales del despacho (NO subir a repositorios ni compartir)
+instance/
+uploads/
+
+# Artefactos de compilación de PyInstaller
+build/
+dist/
+*.spec
+
+# Python
+__pycache__/
+*.pyc
+venv/
+.venv/

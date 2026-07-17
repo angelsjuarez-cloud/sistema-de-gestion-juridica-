@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block titulo %}Clientes · Sistema de Gestión Jurídica{% endblock %}
+{% block eyebrow %}Gestión{% endblock %}
+{% block encabezado %}Clientes{% endblock %}
+
+{% block contenido %}
+<div class="card">
+  <div class="card-header">
+    <h3>{{ clientes|length }} cliente(s) registrado(s)</h3>
+    <div style="display:flex; gap:10px;">
+      <form method="get" class="search-quick" style="min-width:220px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input type="text" name="q" value="{{ q }}" placeholder="Buscar por nombre…">
+      </form>
+      <a href="{{ url_for('nuevo_cliente') }}" class="btn btn-dorado">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+        Nuevo cliente
+      </a>
+    </div>
+  </div>
+
+  {% if not clientes %}
+  <div class="empty-state">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 20c0-3.6 3-6 6.5-6s6.5 2.4 6.5 6"/></svg>
+    <p>No se encontraron clientes.</p>
+  </div>
+  {% else %}
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Nombre</th><th>Tipo</th><th>Identificación</th><th>Contacto</th><th>Expedientes activos</th><th></th></tr></thead>
+    <tbody>
+      {% for c in clientes %}
+      <tr>
+        <td><a href="{{ url_for('ver_cliente', id=c.id) }}"><strong>{{ c.nombre }}</strong></a></td>
+        <td>{{ c.tipo }}</td>
+        <td class="mono">{{ c.identificacion or '—' }}</td>
+        <td>{{ c.telefono or c.email or '—' }}</td>
+        <td>{{ c.expedientes_activos }}</td>
+        <td style="text-align:right;"><a href="{{ url_for('ver_cliente', id=c.id) }}" class="btn btn-outline btn-sm">Ver ficha</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block titulo %}{{ t.titulo }} · Sistema de Gestión Jurídica{% endblock %}
+{% block eyebrow %}Tareas{% endblock %}
+{% block encabezado %}{{ t.titulo }}{% endblock %}
+
+{% block contenido %}
+<div class="grid grid-2" style="align-items:start;">
+  <div class="card">
+    <div class="card-header">
+      <h3>Detalle de la tarea</h3>
+      <div style="display:flex; gap:8px;">
+        <a href="{{ url_for('editar_tarea', id=t.id) }}" class="btn btn-outline btn-sm">Editar</a>
+        {% if current_user.es_admin %}
+        <form method="post" action="{{ url_for('eliminar_tarea', id=t.id) }}" onsubmit="return confirm('¿Eliminar esta tarea de forma permanente?');">
+          <button class="btn btn-danger btn-sm">Eliminar</button>
+        </form>
+        {% endif %}
+      </div>
+    </div>
+    <div class="chip-row" style="margin-bottom:14px;">
+      <span class="badge badge-{{ t.prioridad|lower }}">Prioridad {{ t.prioridad }}</span>
+      <span class="badge {{ 'badge-concluido' if t.estado=='Completada' else 'badge-cancelado' if t.estado=='Cancelada' else 'badge-en-espera' if t.estado=='En revisión' else 'badge-en-proceso' if t.estado=='En proceso' else 'badge-abierto' }}">{{ t.estado }}</span>
+      {% if t.vencida %}<span class="badge badge-alta">Vencida</span>{% endif %}
+    </div>
+    {% if t.descripcion %}<p style="font-size:13.4px; color:var(--gris-texto);">{{ t.descripcion }}</p>{% endif %}
+    <div class="divider"></div>
+    <ul class="list-simple">
+      <li><span>Responsable(s)</span><strong>{{ t.responsables|map(attribute='nombre')|join(', ') or 'Sin asignar' }}</strong></li>
+      <li><span>Creada por</span><strong>{{ t.creado_por.nombre if t.creado_por else '—' }}</strong></li>
+      <li><span>Fecha de creación</span><strong>{{ t.creado_en.strftime('%d/%m/%Y %H:%M') }}</strong></li>
+      <li><span>Fecha límite</span><strong>{{ t.fecha_limite.strftime('%d/%m/%Y') if t.fecha_limite else '—' }}</strong></li>
+      <li><span>Expediente relacionado</span>
+        <strong>{% if t.expediente %}<a href="{{ url_for('ver_expediente', id=t.expediente.id) }}">{{ t.expediente.numero }}</a>{% else %}—{% endif %}</strong>
+      </li>
+      <li><span>Última actualización</span><strong>{{ t.actualizado_en.strftime('%d/%m/%Y %H:%M') }} ({{ t.dias_sin_actualizar }} día(s))</strong></li>
+    </ul>
+    <div class="divider"></div>
+    <form method="post" action="{{ url_for('actualizar_tarea', id=t.id) }}" style="display:flex; gap:10px; align-items:flex-end;">
+      <div class="form-group" style="flex:1; margin-bottom:0;">
+        <label>Actualizar estado</label>
+        <select name="estado">
+          {% for est in estados %}
+          <option {{ 'selected' if t.estado==est }}>{{ est }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary">Guardar</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><h3>Comentarios y avances</h3></div>
+    {% if t.comentarios.count() == 0 %}
+      <div class="empty-state"><p>Aún no hay comentarios en esta tarea.</p></div>
+    {% else %}
+    <div class="timeline">
+      {% for c in t.comentarios %}
+      <div class="timeline-item">
+        <div class="fecha">{{ c.fecha.strftime('%d de %B %Y, %H:%M') }}</div>
+        <div class="desc">{{ c.texto }}</div>
+        <div class="autor">{{ c.usuario.nombre if c.usuario else 'Usuario' }}</div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+    <div class="divider"></div>
+    <form method="post" action="{{ url_for('agregar_comentario_tarea', id=t.id) }}">
+      <div class="form-group">
+        <label>Agregar comentario / avance</label>
+        <textarea name="texto" placeholder="Describe el avance realizado…" required></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block">Comentar</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

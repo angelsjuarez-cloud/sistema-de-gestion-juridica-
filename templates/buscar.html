@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block titulo %}Buscar · Sistema de Gestión Jurídica{% endblock %}
+{% block eyebrow %}Búsqueda rápida{% endblock %}
+{% block encabezado %}Resultados para "{{ q }}"{% endblock %}
+
+{% block contenido %}
+<div class="grid grid-2" style="align-items:start;">
+  <div class="card">
+    <div class="card-header"><h3>Expedientes ({{ expedientes|length }})</h3></div>
+    {% if not expedientes %}
+      <div class="empty-state"><p>Sin resultados en expedientes.</p></div>
+    {% else %}
+    <ul class="list-simple">
+      {% for e in expedientes %}
+      <li><a href="{{ url_for('ver_expediente', id=e.id) }}"><strong>{{ e.numero }}</strong> — {{ e.titulo }}</a><span class="badge badge-{{ e.estado|lower|replace(' ','-') }}">{{ e.estado }}</span></li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+  </div>
+  <div class="card">
+    <div class="card-header"><h3>Clientes ({{ clientes|length }})</h3></div>
+    {% if not clientes %}
+      <div class="empty-state"><p>Sin resultados en clientes.</p></div>
+    {% else %}
+    <ul class="list-simple">
+      {% for c in clientes %}
+      <li><a href="{{ url_for('ver_cliente', id=c.id) }}"><strong>{{ c.nombre }}</strong></a><span style="font-size:12px;color:var(--gris-texto);">{{ c.identificacion or '' }}</span></li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

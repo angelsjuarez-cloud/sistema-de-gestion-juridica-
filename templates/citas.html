@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block titulo %}Citas · Sistema de Gestión Jurídica{% endblock %}
+{% block eyebrow %}Gestión{% endblock %}
+{% block encabezado %}Citas{% endblock %}
+
+{% block contenido %}
+<div class="grid grid-2" style="align-items:start;">
+  <div class="card">
+    <div class="card-header"><h3>{{ citas|length }} cita(s) registradas</h3></div>
+    {% if not citas %}
+      <div class="empty-state"><p>No hay citas registradas todavía.</p></div>
+    {% else %}
+    <div class="table-wrap">
+    <table>
+      <thead><tr><th>Fecha</th><th>Título</th><th>Cliente</th><th>Responsable</th><th>Estado</th>{% if current_user.es_admin %}<th></th>{% endif %}</tr></thead>
+      <tbody>
+        {% for c in citas %}
+        <tr>
+          <td class="mono">{{ c.fecha_hora.strftime('%d/%m/%Y %H:%M') }}</td>
+          <td>{{ c.titulo }}</td>
+          <td>{{ c.cliente.nombre if c.cliente else '—' }}</td>
+          <td>{{ c.usuario.nombre if c.usuario else '—' }}</td>
+          <td>
+            <form method="post" action="{{ url_for('actualizar_cita', id=c.id) }}">
+              <select name="estado" onchange="this.form.submit()" style="padding:4px 8px; font-size:11.5px;">
+                {% for est in ['Programada','Completada','Cancelada'] %}
+                <option {{ 'selected' if c.estado==est }}>{{ est }}</option>
+                {% endfor %}
+              </select>
+            </form>
+          </td>
+          {% if current_user.es_admin %}
+          <td style="text-align:right;">
+            <form method="post" action="{{ url_for('eliminar_cita', id=c.id) }}" onsubmit="return confirm('¿Eliminar esta cita?');">
+              <button class="btn btn-danger btn-sm">✕</button>
+            </form>
+          </td>
+          {% endif %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <div class="card-header"><h3>Agendar nueva cita</h3></div>
+    <form method="post" action="{{ url_for('nueva_cita') }}">
+      <div class="form-group">
+        <label>Título de la cita *</label>
+        <input type="text" name="titulo" required placeholder="Ej. Revisión de estrategia procesal">
+      </div>
+      <div class="form-group">
+        <label>Cliente</label>
+        <select name="cliente_id">
+          <option value="">Cita interna (sin cliente)</option>
+          {% for c in clientes %}
+          <option value="{{ c.id }}">{{ c.nombre }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Responsable</label>
+        <select name="usuario_id">
+          <option value="">Sin asignar</option>
+          {% for u in usuarios %}
+          <option value="{{ u.id }}">{{ u.nombre }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Fecha y hora *</label>
+          <input type="datetime-local" name="fecha_hora" required>
+        </div>
+        <div class="form-group">
+          <label>Lugar</label>
+          <input type="text" name="lugar" placeholder="Oficina, videollamada…">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Notas</label>
+        <textarea name="notas"></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block">Agendar cita</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

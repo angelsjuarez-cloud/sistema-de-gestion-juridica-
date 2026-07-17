@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Error {{ codigo }}</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+<div class="login-wrap">
+  <div class="login-card">
+    <div class="brand-seal">{{ codigo }}</div>
+    <h1>Error {{ codigo }}</h1>
+    <p style="color:var(--gris-texto); margin-bottom:24px;">{{ mensaje }}</p>
+    <a href="{{ url_for('dashboard') }}" class="btn btn-primary btn-block">Volver al panel principal</a>
+  </div>
+</div>
+</body>
+</html>

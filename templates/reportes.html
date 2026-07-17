@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% block titulo %}Reportes · Sistema de Gestión Jurídica{% endblock %}
+{% block eyebrow %}Análisis{% endblock %}
+{% block encabezado %}Reportes del despacho{% endblock %}
+
+{% block contenido %}
+
+<div class="grid grid-4" style="margin-bottom:22px;">
+  <div class="stat-card acento-tinta">
+    <div class="label">Casos activos</div>
+    <div class="valor">{{ activos|length }}</div>
+  </div>
+  <div class="stat-card acento-salvia">
+    <div class="label">Casos concluidos</div>
+    <div class="valor">{{ concluidos|length }}</div>
+  </div>
+  <div class="stat-card acento-dorado">
+    <div class="label">Ingresos totales cobrados</div>
+    <div class="valor">${{ "%.0f"|format(total_ingresos) }}</div>
+  </div>
+  <div class="stat-card acento-granate">
+    <div class="label">Pagos pendientes</div>
+    <div class="valor">${{ "%.0f"|format(total_pendiente) }}</div>
+  </div>
+</div>
+
+<div class="card no-print" style="margin-bottom:22px; display:flex; justify-content:flex-end;">
+  <button onclick="window.print()" class="btn btn-outline btn-sm">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7"/><rect x="6" y="14" width="12" height="8"/><path d="M6 18H4a1 1 0 0 1-1-1v-6a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1h-2"/></svg>
+    Imprimir / exportar a PDF
+  </button>
+</div>
+
+<div class="grid grid-2" style="align-items:start; margin-bottom:22px;">
+  <div class="card">
+    <div class="card-header"><h3>Casos activos</h3></div>
+    {% if not activos %}
+      <div class="empty-state"><p>No hay casos activos.</p></div>
+    {% else %}
+    <div class="table-wrap">
+    <table>
+      <thead><tr><th>Número</th><th>Cliente</th><th>Tipo</th><th>Estado</th></tr></thead>
+      <tbody>
+        {% for e in activos %}
+        <tr><td class="mono">{{ e.numero }}</td><td>{{ e.cliente.nombre }}</td><td>{{ e.tipo_caso }}</td><td><span class="badge badge-{{ e.estado|lower|replace(' ','-') }}">{{ e.estado }}</span></td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <div class="card-header"><h3>Casos concluidos</h3></div>
+    {% if not concluidos %}
+      <div class="empty-state"><p>No hay casos concluidos aún.</p></div>
+    {% else %}
+    <div class="table-wrap">
+    <table>
+      <thead><tr><th>Número</th><th>Cliente</th><th>Tipo</th><th>Cierre</th></tr></thead>
+      <tbody>
+        {% for e in concluidos %}
+        <tr><td class="mono">{{ e.numero }}</td><td>{{ e.cliente.nombre }}</td><td>{{ e.tipo_caso }}</td><td>{{ e.fecha_cierre.strftime('%d/%m/%Y') if e.fecha_cierre else '—' }}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<div class="grid grid-2" style="align-items:start;">
+  <div class="card">
+    <div class="card-header"><h3>Ingresos por mes</h3></div>
+    {% if not ingresos_por_mes %}
+      <div class="empty-state"><p>Aún no hay ingresos cobrados.</p></div>
+    {% else %}
+    {% set max_ing = ingresos_por_mes|map(attribute=1)|max %}
+    <div class="bar-chart">
+      {% for mes, monto in ingresos_por_mes %}
+      <div class="bar-row">
+        <span>{{ mes }}</span>
+        <div class="bar-track"><div class="bar-fill" style="width: {{ (monto/max_ing*100) if max_ing else 0 }}%"></div></div>
+        <span class="mono" style="text-align:right;">${{ "%.0f"|format(monto) }}</span>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="divider"></div>
+    <div class="card-header"><h3 style="font-size:14.5px;">Actividad de abogados (expedientes asignados)</h3></div>
+    <ul class="list-simple">
+      {% for nombre, cantidad in actividad_abogados %}
+      <li><span>{{ nombre }}</span><strong>{{ cantidad }} expediente(s)</strong></li>
+      {% else %}
+      <li><span>No hay expedientes asignados a abogados todavía.</span></li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><h3>Pagos pendientes de cobro</h3></div>
+    {% if not pagos_pendientes %}
+      <div class="empty-state"><p>No hay pagos pendientes. ¡Al corriente!</p></div>
+    {% else %}
+    <div class="table-wrap">
+    <table>
+      <thead><tr><th>Concepto</th><th>Expediente</th><th>Monto</th></tr></thead>
+      <tbody>
+        {% for p in pagos_pendientes %}
+        <tr><td>{{ p.concepto }}</td><td class="mono">{{ p.expediente.numero }}</td><td class="mono">${{ "%.2f"|format(p.monto) }}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+{% endblock %}

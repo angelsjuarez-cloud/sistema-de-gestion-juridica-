@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Iniciar sesión · Sistema de Gestión Jurídica</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+<div class="flash-stack" id="flashStack">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for categoria, mensaje in messages %}
+        <div class="alert alert-{{ categoria }}">{{ mensaje }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+</div>
+
+<div class="login-wrap">
+  <div class="login-card">
+    <div class="brand-seal">SJ</div>
+    <h1>Sistema de Gestión Jurídica</h1>
+    <div class="sub">Acceso al despacho</div>
+
+    <form method="post">
+      <div class="form-group">
+        <label>Correo electrónico</label>
+        <input type="email" name="email" placeholder="tucorreo@despacho.com" required autofocus>
+      </div>
+      <div class="form-group">
+        <label>Contraseña</label>
+        <input type="password" name="password" placeholder="••••••••" required>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block">Iniciar sesión</button>
+    </form>
+
+    <div style="margin-top:18px; text-align:center;">
+      <span style="font-size:12.5px; color:var(--gris-texto);">¿Tu despacho aún no está registrado?</span><br>
+      <a href="{{ url_for('registro_despacho') }}" style="font-size:13px; font-weight:600; color:var(--dorado-oscuro);">Crear cuenta de despacho nueva →</a>
+    </div>
+
+    <div class="demo-creds">
+      <b>Cuenta de demostración (Despacho Demo)</b><br>
+      Administrador: admin@despacho.com / admin123<br>
+      Abogado: carlos@despacho.com / abogado123<br>
+      Asistente: asistente@despacho.com / asistente123
+    </div>
+  </div>
+</div>
+
+<script>
+  setTimeout(()=>{
+    document.querySelectorAll('#flashStack .alert').forEach(el=>{ el.style.transition='opacity .4s'; el.style.opacity='0'; setTimeout(()=>el.remove(),400); });
+  }, 4200);
+</script>
+</body>
+</html>

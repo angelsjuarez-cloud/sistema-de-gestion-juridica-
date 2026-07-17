@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block titulo %}Bitácora de auditoría · Sistema de Gestión Jurídica{% endblock %}
+{% block eyebrow %}Administración{% endblock %}
+{% block encabezado %}Bitácora de auditoría{% endblock %}
+
+{% block contenido %}
+<div class="card">
+  <div class="card-header">
+    <h3>{{ registros|length }} registro(s) (últimos 400)</h3>
+    <span class="form-hint">Registro de solo lectura. Ninguna entrada puede editarse ni eliminarse.</span>
+  </div>
+
+  <form method="get" style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:18px;">
+    <select name="modulo" style="max-width:200px;" onchange="this.form.submit()">
+      <option value="">Todos los módulos</option>
+      {% for m in modulos %}
+      <option value="{{ m }}" {{ 'selected' if modulo==m }}>{{ m }}</option>
+      {% endfor %}
+    </select>
+    <select name="accion" style="max-width:200px;" onchange="this.form.submit()">
+      <option value="">Todas las acciones</option>
+      {% for a in acciones %}
+      <option value="{{ a }}" {{ 'selected' if accion==a }}>{{ a }}</option>
+      {% endfor %}
+    </select>
+    <select name="usuario_id" style="max-width:220px;" onchange="this.form.submit()">
+      <option value="">Todos los usuarios</option>
+      {% for u in usuarios %}
+      <option value="{{ u.id }}" {{ 'selected' if usuario_id==u.id|string }}>{{ u.nombre }}</option>
+      {% endfor %}
+    </select>
+    {% if modulo or accion or usuario_id %}<a href="{{ url_for('auditoria') }}" class="btn btn-outline btn-sm">Limpiar filtros</a>{% endif %}
+  </form>
+
+  {% if not registros %}
+  <div class="empty-state"><p>No hay registros de auditoría con estos filtros.</p></div>
+  {% else %}
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Fecha y hora</th><th>Usuario</th><th>Acción</th><th>Módulo</th><th>Registro</th><th>IP</th><th>Detalle</th></tr></thead>
+    <tbody>
+      {% for r in registros %}
+      <tr>
+        <td class="mono" style="white-space:nowrap;">{{ r.fecha.strftime('%d/%m/%Y %H:%M:%S') }}</td>
+        <td>{{ r.usuario_nombre or '—' }}</td>
+        <td><span class="badge" style="background:var(--marfil-2); color:var(--tinta-950);">{{ r.accion }}</span></td>
+        <td>{{ r.modulo }}</td>
+        <td>{{ r.registro_desc or '—' }}</td>
+        <td class="mono" style="font-size:11.5px;">{{ r.ip or '—' }}</td>
+        <td style="font-size:12.4px; max-width:320px;">{{ r.descripcion or '—' }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

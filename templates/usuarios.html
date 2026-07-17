@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block titulo %}Usuarios · Sistema de Gestión Jurídica{% endblock %}
+{% block eyebrow %}Administración{% endblock %}
+{% block encabezado %}Usuarios y roles{% endblock %}
+
+{% block contenido %}
+<div class="grid grid-2" style="align-items:start;">
+  <div class="card">
+    <div class="card-header"><h3>{{ usuarios|length }} usuario(s) del despacho</h3></div>
+    <div class="table-wrap">
+    <table>
+      <thead><tr><th>Nombre</th><th>Correo</th><th>Rol</th><th>Estado</th><th></th></tr></thead>
+      <tbody>
+        {% for u in usuarios %}
+        <tr>
+          <td><strong>{{ u.nombre }}</strong></td>
+          <td>{{ u.email }}</td>
+          <td>
+            {% if u.id != current_user.id %}
+            <form method="post" action="{{ url_for('cambiar_rol_usuario', id=u.id) }}">
+              <select name="rol" onchange="this.form.submit()" style="padding:4px 8px; font-size:11.5px;">
+                {% for r in ['Administrador','Abogado','Asistente'] %}
+                <option {{ 'selected' if u.rol==r }}>{{ r }}</option>
+                {% endfor %}
+              </select>
+            </form>
+            {% else %}
+            <span class="badge badge-{{ u.rol|lower }}">{{ u.rol }}</span>
+            {% endif %}
+          </td>
+          <td><span class="badge {{ 'badge-pagado' if u.activo else 'badge-cancelado' }}">{{ 'Activo' if u.activo else 'Inactivo' }}</span></td>
+          <td style="text-align:right; white-space:nowrap;">
+            {% if u.id != current_user.id %}
+            <form method="post" action="{{ url_for('cambiar_estado_usuario', id=u.id) }}" style="display:inline;">
+              <button class="btn btn-outline btn-sm">{{ 'Desactivar' if u.activo else 'Activar' }}</button>
+            </form>
+            <form method="post" action="{{ url_for('eliminar_usuario', id=u.id) }}" style="display:inline;" onsubmit="return confirm('¿Eliminar permanentemente a este usuario? Esta acción no se puede deshacer.');">
+              <button class="btn btn-danger btn-sm">Eliminar</button>
+            </form>
+            {% else %}
+            <span style="font-size:11.5px; color:var(--gris-texto);">Tu cuenta</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><h3>Registrar nuevo usuario</h3></div>
+    <form method="post" action="{{ url_for('nuevo_usuario') }}">
+      <div class="form-group">
+        <label>Nombre completo *</label>
+        <input type="text" name="nombre" required>
+      </div>
+      <div class="form-group">
+        <label>Correo electrónico *</label>
+        <input type="email" name="email" required>
+      </div>
+      <div class="form-group">
+        <label>Contraseña *</label>
+        <input type="password" name="password" required minlength="6">
+      </div>
+      <div class="form-group">
+        <label>Rol *</label>
+        <select name="rol" required>
+          <option>Administrador</option>
+          <option selected>Abogado</option>
+          <option>Asistente</option>
+        </select>
+        <div class="form-hint">
+          <b>Administrador:</b> control total del sistema.<br>
+          <b>Abogado:</b> gestiona expedientes, audiencias y clientes.<br>
+          <b>Asistente:</b> apoyo administrativo, sin permisos de eliminación.
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block">Crear usuario</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

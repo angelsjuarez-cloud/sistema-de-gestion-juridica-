@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block titulo %}Calendario · Sistema de Gestión Jurídica{% endblock %}
+{% block eyebrow %}Principal{% endblock %}
+{% block encabezado %}Calendario de eventos{% endblock %}
+
+{% block contenido %}
+<div class="card">
+  <div class="card-header">
+    <h3 id="mesActual">Cargando calendario…</h3>
+    <div style="display:flex; gap:8px; align-items:center;">
+      <span class="chip-row">
+        <span class="filter-chip" style="border-left:4px solid var(--granate);">Audiencia</span>
+        <span class="filter-chip" style="border-left:4px solid var(--dorado);">Cita</span>
+        <span class="filter-chip" style="border-left:4px solid var(--salvia);">Tarea</span>
+      </span>
+      <button class="btn btn-outline btn-sm" onclick="cambiarMes(-1)">‹ Anterior</button>
+      <button class="btn btn-outline btn-sm" onclick="cambiarMes(1)">Siguiente ›</button>
+    </div>
+  </div>
+  <div id="grid-calendario" style="display:grid; grid-template-columns:repeat(7,1fr); gap:6px; margin-top:10px;"></div>
+</div>
+
+<div class="card" style="margin-top:20px;">
+  <div class="card-header"><h3>Eventos del día seleccionado</h3></div>
+  <ul class="list-simple" id="lista-eventos-dia"><li><span>Selecciona un día del calendario para ver el detalle.</span></li></ul>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let eventos = [];
+let fechaRef = new Date();
+const nombresMes = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+const diasSemana = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+
+fetch("{{ url_for('api_eventos') }}").then(r=>r.json()).then(data=>{ eventos = data; pintarCalendario(); });
+
+function cambiarMes(delta){ fechaRef.setMonth(fechaRef.getMonth()+delta); pintarCalendario(); }
+
+function pintarCalendario(){
+  document.getElementById('mesActual').textContent = nombresMes[fechaRef.getMonth()] + ' ' + fechaRef.getFullYear();
+  const grid = document.getElementById('grid-calendario');
+  grid.innerHTML = '';
+  diasSemana.forEach(d=>{
+    const cab = document.createElement('div');
+    cab.style.cssText = 'font-size:11px;font-weight:700;color:var(--gris-texto);text-transform:uppercase;padding:6px;text-align:center;';
+    cab.textContent = d;
+    grid.appendChild(cab);
+  });
+  const primerDia = new Date(fechaRef.getFullYear(), fechaRef.getMonth(), 1);
+  const ultimoDia = new Date(fechaRef.getFullYear(), fechaRef.getMonth()+1, 0);
+  const offset = primerDia.getDay();
+  for(let i=0;i<offset;i++){ grid.appendChild(document.createElement('div')); }
+
+  const hoy = new Date();
+  for(let dia=1; dia<=ultimoDia.getDate(); dia++){
+    const fechaCelda = new Date(fechaRef.getFullYear(), fechaRef.getMonth(), dia);
+    const celda = document.createElement('div');
+    const esHoy = fechaCelda.toDateString() === hoy.toDateString();
+    celda.style.cssText = 'min-height:78px; border:1px solid var(--gris-linea); border-radius:8px; padding:6px; font-size:11.5px; cursor:pointer; background:' + (esHoy ? 'var(--marfil)' : 'var(--papel)');
+    celda.innerHTML = '<div style="font-weight:700;' + (esHoy ? 'color:var(--dorado-oscuro);' : '') + '">' + dia + '</div>';
+
+    const evDia = eventos.filter(e=> new Date(e.start).toDateString() === fechaCelda.toDateString());
+    evDia.slice(0,3).forEach(ev=>{
+      const chip = document.createElement('div');
+      chip.style.cssText = 'margin-top:3px; padding:2px 5px; border-radius:4px; font-size:10px; color:#fff; background:' + ev.color + '; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;';
+      chip.textContent = ev.title;
+      celda.appendChild(chip);
+    });
+    if(evDia.length > 3){
+      const mas = document.createElement('div');
+      mas.style.cssText = 'font-size:10px; color:var(--gris-texto); margin-top:2px;';
+      mas.textContent = '+' + (evDia.length-3) + ' más';
+      celda.appendChild(mas);
+    }
+    celda.onclick = ()=> mostrarEventosDia(fechaCelda, evDia);
+    grid.appendChild(celda);
+  }
+}
+
+function mostrarEventosDia(fecha, evDia){
+  const lista = document.getElementById('lista-eventos-dia');
+  lista.innerHTML = '';
+  if(evDia.length === 0){
+    lista.innerHTML = '<li><span>No hay eventos el ' + fecha.toLocaleDateString('es-MX', {day:'numeric', month:'long'}) + '.</span></li>';
+    return;
+  }
+  evDia.forEach(ev=>{
+    const li = document.createElement('li');
+    const hora = new Date(ev.start).toLocaleTimeString('es-MX', {hour:'2-digit', minute:'2-digit'});
+    li.innerHTML = '<span>' + ev.title + '</span><strong class="mono">' + hora + '</strong>';
+    lista.appendChild(li);
+  });
+}
+</script>
+{% endblock %}

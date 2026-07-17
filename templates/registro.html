@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Crear despacho · Sistema de Gestión Jurídica</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+<div class="flash-stack" id="flashStack">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for categoria, mensaje in messages %}
+        <div class="alert alert-{{ categoria }}">{{ mensaje }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+</div>
+
+<div class="login-wrap">
+  <div class="login-card" style="max-width:460px;">
+    <div class="brand-seal">+</div>
+    <h1>Crear tu despacho</h1>
+    <div class="sub">Tu propio espacio, separado de cualquier otro despacho</div>
+
+    <form method="post">
+      <div class="form-group">
+        <label>Nombre del despacho</label>
+        <input type="text" name="nombre_despacho" placeholder="Ej. Martínez &amp; Asociados" required value="{{ nombre_despacho }}">
+      </div>
+      <div class="form-group">
+        <label>Tu nombre completo</label>
+        <input type="text" name="nombre_admin" placeholder="Serás el Administrador de esta cuenta" required value="{{ nombre_admin }}">
+      </div>
+      <div class="form-group">
+        <label>Correo electrónico</label>
+        <input type="email" name="email" placeholder="tucorreo@despacho.com" required value="{{ email }}">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Contraseña</label>
+          <input type="password" name="password" placeholder="Mínimo 6 caracteres" required minlength="6">
+        </div>
+        <div class="form-group">
+          <label>Confirmar contraseña</label>
+          <input type="password" name="confirmar" required minlength="6">
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block">Crear despacho y comenzar</button>
+    </form>
+
+    <div style="margin-top:18px; text-align:center;">
+      <a href="{{ url_for('login') }}" style="font-size:13px; font-weight:600; color:var(--dorado-oscuro);">← Ya tengo una cuenta, iniciar sesión</a>
+    </div>
+
+    <div class="demo-creds">
+      Tu despacho tendrá su propia base de clientes, expedientes, pagos, usuarios y documentos, completamente separada de cualquier otro despacho que use este sistema. Podrás invitar a tu equipo desde <b>Usuarios y roles</b> una vez dentro.
+    </div>
+  </div>
+</div>
+
+<script>
+  setTimeout(()=>{
+    document.querySelectorAll('#flashStack .alert').forEach(el=>{ el.style.transition='opacity .4s'; el.style.opacity='0'; setTimeout(()=>el.remove(),400); });
+  }, 5000);
+</script>
+</body>
+</html>

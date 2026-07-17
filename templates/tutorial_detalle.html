@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block titulo %}{{ t.titulo }} · Sistema de Gestión Jurídica{% endblock %}
+{% block eyebrow %}Tutoriales · {{ t.categoria }}{% endblock %}
+{% block encabezado %}{{ t.titulo }}{% endblock %}
+
+{% block contenido %}
+<div class="grid grid-2" style="align-items:start;">
+  <div class="card">
+    <div class="chip-row" style="margin-bottom:14px;">
+      <span class="badge" style="background:var(--marfil-2); color:var(--tinta-950);">{{ t.categoria }}</span>
+      {% if t.destacado %}<span class="badge" style="background:#fdf3e0;color:#a3720e;">★ Destacado</span>{% endif %}
+      {% if t.obligatorio %}<span class="badge badge-alta">Consulta obligatoria</span>{% endif %}
+    </div>
+
+    {% if t.video_url %}
+    <div style="margin-bottom:18px; border-radius:10px; overflow:hidden; border:1px solid var(--gris-linea);">
+      <iframe src="{{ t.video_url }}" width="100%" height="360" style="display:block; border:none;" allowfullscreen></iframe>
+    </div>
+    {% endif %}
+
+    <div style="font-size:14px; line-height:1.7; color:var(--tinta-950);">
+      {{ t.contenido | safe }}
+    </div>
+
+    {% if t.archivos.count() > 0 %}
+    <div class="divider"></div>
+    <h3 style="font-size:14.5px;">Archivos adjuntos</h3>
+    <ul class="list-simple">
+      {% for a in t.archivos %}
+      <li>
+        <span>{{ '🖼️' if a.tipo=='imagen' else '📄' if a.tipo=='pdf' else '📎' }} {{ a.nombre_archivo }}</span>
+        <a href="{{ url_for('descargar_archivo_tutorial', archivo_id=a.id) }}" class="btn btn-outline btn-sm">Descargar</a>
+      </li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+
+    <div class="divider"></div>
+    <span style="font-size:11.5px; color:var(--gris-texto);">
+      Publicado por {{ t.autor.nombre if t.autor else 'Despacho' }} · Actualizado el {{ t.actualizado_en.strftime('%d de %B %Y') }}
+    </span>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><h3>Acciones</h3></div>
+    <a href="{{ url_for('tutoriales') }}" class="btn btn-outline btn-block" style="margin-bottom:10px;">← Volver al listado</a>
+    {% if current_user.es_admin %}
+    <a href="{{ url_for('editar_tutorial', id=t.id) }}" class="btn btn-primary btn-block" style="margin-bottom:10px;">Editar tutorial</a>
+    <form method="post" action="{{ url_for('eliminar_tutorial', id=t.id) }}" onsubmit="return confirm('¿Eliminar este tutorial de forma permanente?');">
+      <button class="btn btn-danger btn-block">Eliminar tutorial</button>
+    </form>
+    {% else %}
+    <p style="font-size:12.5px; color:var(--gris-texto);">Solo el Administrador puede editar o eliminar tutoriales. Si detectas información desactualizada, repórtalo al despacho.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

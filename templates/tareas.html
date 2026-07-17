@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block titulo %}Tareas · Sistema de Gestión Jurídica{% endblock %}
+{% block eyebrow %}Gestión{% endblock %}
+{% block encabezado %}Tareas y pendientes{% endblock %}
+
+{% block contenido %}
+<div class="grid grid-2" style="align-items:start;">
+  <div class="card">
+    <div class="card-header">
+      <h3>{{ tareas|length }} tarea(s) {{ 'visibles para ti' if not current_user.es_admin else 'en el sistema' }}</h3>
+    </div>
+    <div class="chip-row" style="margin-bottom:16px;">
+      <a href="{{ url_for('tareas') }}" class="filter-chip {{ 'active' if not estado_filtro }}">Todas</a>
+      {% for est in estados %}
+      <a href="{{ url_for('tareas', estado=est) }}" class="filter-chip {{ 'active' if estado_filtro==est }}">{{ est }}</a>
+      {% endfor %}
+    </div>
+    {% if not tareas %}
+      <div class="empty-state">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 11l2.5 2.5L16 8.5"/><rect x="3" y="3" width="18" height="18" rx="3"/></svg>
+        <p>No tienes tareas asignadas con este filtro.</p>
+      </div>
+    {% else %}
+    <div class="table-wrap">
+    <table>
+      <thead><tr><th>Tarea</th><th>Responsables</th><th>Expediente</th><th>Límite</th><th>Prioridad</th><th>Estado</th></tr></thead>
+      <tbody>
+        {% for t in tareas %}
+        <tr onclick="window.location='{{ url_for('ver_tarea', id=t.id) }}'" style="cursor:pointer;">
+          <td><strong>{{ t.titulo }}</strong>{% if t.vencida %} <span class="badge badge-alta">Vencida</span>{% endif %}</td>
+          <td>{% for r in t.responsables %}<span class="badge" style="background:var(--marfil-2);color:var(--tinta-950); margin-right:3px;">{{ r.nombre.split(' ')[0] }}</span>{% else %}<span style="color:var(--gris-texto); font-size:12px;">Sin asignar</span>{% endfor %}</td>
+          <td class="mono">{{ t.expediente.numero if t.expediente else '—' }}</td>
+          <td class="mono">{{ t.fecha_limite.strftime('%d/%m/%Y') if t.fecha_limite else '—' }}</td>
+          <td><span class="badge badge-{{ t.prioridad|lower }}">{{ t.prioridad }}</span></td>
+          <td><span class="badge {{ 'badge-concluido' if t.estado=='Completada' else 'badge-cancelado' if t.estado=='Cancelada' else 'badge-en-espera' if t.estado=='En revisión' else 'badge-en-proceso' if t.estado=='En proceso' else 'badge-abierto' }}">{{ t.estado }}</span></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <div class="card-header"><h3>Nueva tarea</h3></div>
+    <form method="post" action="{{ url_for('nueva_tarea') }}">
+      <div class="form-group">
+        <label>Título *</label>
+        <input type="text" name="titulo" required placeholder="Ej. Preparar alegatos finales">
+      </div>
+      <div class="form-group">
+        <label>Descripción</label>
+        <textarea name="descripcion"></textarea>
+      </div>
+      <div class="form-group">
+        <label>Expediente relacionado</label>
+        <select name="expediente_id">
+          <option value="">Ninguno / tarea general</option>
+          {% for e in expedientes %}
+          <option value="{{ e.id }}">{{ e.numero }} — {{ e.titulo }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Responsable(s) *</label>
+        <select name="responsables" multiple required size="4">
+          {% for u in usuarios %}
+          <option value="{{ u.id }}" {{ 'selected' if u.id==current_user.id }}>{{ u.nombre }} ({{ u.rol }})</option>
+          {% endfor %}
+        </select>
+        <div class="form-hint">Mantén Ctrl (Cmd en Mac) para seleccionar varios responsables. Solo ellos y el Administrador podrán ver esta tarea.</div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Fecha límite</label>
+          <input type="date" name="fecha_limite">
+        </div>
+        <div class="form-group">
+          <label>Prioridad</label>
+          <select name="prioridad">
+            <option>Alta</option><option selected>Media</option><option>Baja</option>
+          </select>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block">Crear tarea</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

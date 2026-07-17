@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block titulo %}Expedientes · Sistema de Gestión Jurídica{% endblock %}
+{% block eyebrow %}Gestión{% endblock %}
+{% block encabezado %}Expedientes{% endblock %}
+
+{% block contenido %}
+<div class="card">
+  <div class="card-header">
+    <h3>{{ expedientes|length }} expediente(s)</h3>
+    <a href="{{ url_for('nuevo_expediente') }}" class="btn btn-dorado">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+      Nuevo expediente
+    </a>
+  </div>
+
+  <form method="get" style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:18px;">
+    <input type="text" name="q" value="{{ q }}" placeholder="Buscar por número o título…" style="max-width:260px;">
+    <select name="estado" style="max-width:180px;" onchange="this.form.submit()">
+      <option value="">Todos los estados</option>
+      {% for e in ['Abierto','En proceso','En espera','Concluido','Archivado'] %}
+      <option value="{{ e }}" {{ 'selected' if estado==e }}>{{ e }}</option>
+      {% endfor %}
+    </select>
+    <select name="tipo" style="max-width:200px;" onchange="this.form.submit()">
+      <option value="">Todos los tipos</option>
+      {% for t in tipos %}
+      <option value="{{ t }}" {{ 'selected' if tipo==t }}>{{ t }}</option>
+      {% endfor %}
+    </select>
+    <button type="submit" class="btn btn-outline btn-sm">Filtrar</button>
+    {% if estado or tipo or q %}<a href="{{ url_for('expedientes') }}" class="btn btn-outline btn-sm">Limpiar</a>{% endif %}
+  </form>
+
+  {% if not expedientes %}
+  <div class="empty-state">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4h11l5 5v11a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1z"/></svg>
+    <p>No se encontraron expedientes con esos criterios.</p>
+  </div>
+  {% else %}
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Número</th><th>Título</th><th>Cliente</th><th>Tipo</th><th>Abogado</th><th>Prioridad</th><th>Estado</th></tr></thead>
+    <tbody>
+      {% for e in expedientes %}
+      <tr onclick="window.location='{{ url_for('ver_expediente', id=e.id) }}'" style="cursor:pointer;">
+        <td class="mono"><strong>{{ e.numero }}</strong></td>
+        <td>{{ e.titulo }}</td>
+        <td>{{ e.cliente.nombre }}</td>
+        <td>{{ e.tipo_caso }}</td>
+        <td>{{ e.abogado_responsable.nombre if e.abogado_responsable else '—' }}</td>
+        <td><span class="badge badge-{{ e.prioridad|lower }}">{{ e.prioridad }}</span></td>
+        <td><span class="badge badge-{{ e.estado|lower|replace(' ','-') }}">{{ e.estado }}</span></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

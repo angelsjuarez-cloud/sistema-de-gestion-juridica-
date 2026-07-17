@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block titulo %}Enlaces jurídicos · Sistema de Gestión Jurídica{% endblock %}
+{% block eyebrow %}Recursos{% endblock %}
+{% block encabezado %}Centro de enlaces jurídicos oficiales{% endblock %}
+
+{% block contenido %}
+<div class="card">
+  <div class="card-header">
+    <h3>{{ enlaces|length }} enlace(s) disponibles</h3>
+    <div style="display:flex; gap:10px;">
+      <form method="get" class="search-quick" style="min-width:220px;">
+        {% if categoria %}<input type="hidden" name="categoria" value="{{ categoria }}">{% endif %}
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input type="text" name="q" value="{{ q }}" placeholder="Buscar por nombre o institución…">
+      </form>
+      {% if current_user.es_admin %}
+      <a href="{{ url_for('nuevo_enlace') }}" class="btn btn-dorado">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+        Nuevo enlace
+      </a>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="chip-row" style="margin-bottom:20px;">
+    <a href="{{ url_for('enlaces', q=q) }}" class="filter-chip {{ 'active' if not categoria }}">Todas</a>
+    {% for cat in categorias %}
+    <a href="{{ url_for('enlaces', categoria=cat, q=q) }}" class="filter-chip {{ 'active' if categoria==cat }}">{{ cat }}</a>
+    {% endfor %}
+  </div>
+
+  {% if not enlaces %}
+  <div class="empty-state">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 13a5 5 0 0 0 7.5.5l2-2a5 5 0 0 0-7-7l-1.2 1.2"/></svg>
+    <p>No se encontraron enlaces con esos criterios.</p>
+  </div>
+  {% else %}
+  <div class="grid grid-3">
+    {% for e in enlaces %}
+    <div class="card" style="{{ 'opacity:.55;' if not e.activo }}">
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px;">
+        <div style="font-size:26px;">{{ e.icono }}</div>
+        <div class="chip-row">
+          {% if e.favorito %}<span class="badge" style="background:#fdf3e0;color:#a3720e;">★</span>{% endif %}
+          {% if e.obligatorio %}<span class="badge badge-alta">Obligatorio</span>{% endif %}
+          {% if not e.activo %}<span class="badge badge-cancelado">Inactivo</span>{% endif %}
+        </div>
+      </div>
+      <h3 style="font-size:15px; margin:0 0 4px;">{{ e.nombre }}</h3>
+      <div style="font-size:11.5px; color:var(--dorado-oscuro); font-weight:600; margin-bottom:8px;">{{ e.institucion or '' }}</div>
+      <p style="font-size:12.6px; color:var(--gris-texto); margin:0 0 12px;">{{ e.descripcion or '' }}</p>
+      <div class="chip-row" style="margin-bottom:14px;">
+        <span class="badge" style="background:var(--marfil-2); color:var(--tinta-950);">{{ e.categoria }}</span>
+      </div>
+      {% if e.activo or current_user.es_admin %}
+      <a href="{{ e.url }}" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-sm btn-block" style="margin-bottom:8px;">Abrir portal ↗</a>
+      {% endif %}
+      {% if current_user.es_admin %}
+      <div style="display:flex; gap:6px;">
+        <a href="{{ url_for('editar_enlace', id=e.id) }}" class="btn btn-outline btn-sm" style="flex:1;">Editar</a>
+        <form method="post" action="{{ url_for('cambiar_estado_enlace', id=e.id) }}" style="flex:1;">
+          <button class="btn btn-outline btn-sm btn-block">{{ 'Desactivar' if e.activo else 'Activar' }}</button>
+        </form>
+        <form method="post" action="{{ url_for('eliminar_enlace', id=e.id) }}" onsubmit="return confirm('¿Eliminar este enlace?');">
+          <button class="btn btn-danger btn-sm">✕</button>
+        </form>
+      </div>
+      {% endif %}
+      <div style="font-size:10.5px; color:var(--gris-texto); margin-top:10px;">Actualizado: {{ e.actualizado_en.strftime('%d/%m/%Y') }}</div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

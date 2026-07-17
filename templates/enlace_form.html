@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block titulo %}{{ 'Editar enlace' if e else 'Nuevo enlace' }} · Sistema de Gestión Jurídica{% endblock %}
+{% block eyebrow %}Enlaces jurídicos{% endblock %}
+{% block encabezado %}{{ 'Editar enlace' if e else 'Nuevo enlace jurídico' }}{% endblock %}
+
+{% block contenido %}
+<div class="card" style="max-width:640px;">
+  <form method="post">
+    <div class="form-row">
+      <div class="form-group">
+        <label>Nombre del portal *</label>
+        <input type="text" name="nombre" required value="{{ e.nombre if e else '' }}">
+      </div>
+      <div class="form-group">
+        <label>Ícono (emoji)</label>
+        <input type="text" name="icono" maxlength="4" placeholder="🔗" value="{{ e.icono if e else '🔗' }}">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Institución responsable</label>
+      <input type="text" name="institucion" value="{{ e.institucion if e else '' }}">
+    </div>
+    <div class="form-group">
+      <label>URL oficial *</label>
+      <input type="url" name="url" required placeholder="https://..." value="{{ e.url if e else '' }}">
+    </div>
+    <div class="form-group">
+      <label>Categoría *</label>
+      <select name="categoria" required>
+        {% for cat in categorias %}
+        <option {{ 'selected' if e and e.categoria==cat }}>{{ cat }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Descripción de su utilidad</label>
+      <textarea name="descripcion">{{ e.descripcion if e else '' }}</textarea>
+    </div>
+    <div class="form-row">
+      <label style="display:flex; align-items:center; gap:8px; font-weight:500;">
+        <input type="checkbox" name="favorito" style="width:auto;" {{ 'checked' if e and e.favorito }}> Marcar como favorito / uso frecuente
+      </label>
+      <label style="display:flex; align-items:center; gap:8px; font-weight:500;">
+        <input type="checkbox" name="obligatorio" style="width:auto;" {{ 'checked' if e and e.obligatorio }}> Uso obligatorio/recomendado
+      </label>
+    </div>
+    <div style="display:flex; gap:10px; margin-top:16px;">
+      <button type="submit" class="btn btn-primary">Guardar enlace</button>
+      <a href="{{ url_for('enlaces') }}" class="btn btn-outline">Cancelar</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

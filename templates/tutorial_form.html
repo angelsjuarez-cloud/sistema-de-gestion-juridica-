@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block titulo %}{{ 'Editar tutorial' if t else 'Nuevo tutorial' }} · Sistema de Gestión Jurídica{% endblock %}
+{% block eyebrow %}Tutoriales{% endblock %}
+{% block encabezado %}{{ 'Editar tutorial' if t else 'Nuevo tutorial' }}{% endblock %}
+
+{% block contenido %}
+<div class="card" style="max-width:820px;">
+  <form method="post" enctype="multipart/form-data">
+    <div class="form-row">
+      <div class="form-group">
+        <label>Título *</label>
+        <input type="text" name="titulo" required value="{{ t.titulo if t else '' }}">
+      </div>
+      <div class="form-group">
+        <label>Categoría *</label>
+        <select name="categoria" required>
+          {% for cat in categorias %}
+          <option {{ 'selected' if t and t.categoria==cat }}>{{ cat }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Contenido (texto enriquecido) *</label>
+      <div style="display:flex; gap:6px; margin-bottom:6px;">
+        <button type="button" class="btn btn-outline btn-sm" onclick="document.execCommand('bold')"><b>N</b></button>
+        <button type="button" class="btn btn-outline btn-sm" onclick="document.execCommand('italic')"><i>K</i></button>
+        <button type="button" class="btn btn-outline btn-sm" onclick="document.execCommand('insertUnorderedList')">• Lista</button>
+        <button type="button" class="btn btn-outline btn-sm" onclick="document.execCommand('insertOrderedList')">1. Lista</button>
+        <button type="button" class="btn btn-outline btn-sm" onclick="const u=prompt('URL del enlace:'); if(u) document.execCommand('createLink', false, u);">🔗 Enlace</button>
+      </div>
+      <div id="editor" contenteditable="true"
+           style="min-height:220px; padding:14px; border:1px solid var(--gris-linea); border-radius:8px; background:var(--papel); font-size:13.8px; line-height:1.6;">{{ t.contenido|safe if t else '' }}</div>
+      <textarea name="contenido" id="contenido-oculto" style="display:none;"></textarea>
+      <div class="form-hint">Usa la barra de herramientas para dar formato. Puedes pegar imágenes ya subidas como enlaces.</div>
+    </div>
+
+    <div class="form-group">
+      <label>Enlace de video (opcional, URL de inserción tipo YouTube/Vimeo embed)</label>
+      <input type="url" name="video_url" placeholder="https://www.youtube.com/embed/…" value="{{ t.video_url if t and t.video_url else '' }}">
+    </div>
+
+    <div class="form-group">
+      <label>Archivos adjuntos (imágenes, PDF, documentos)</label>
+      <input type="file" name="archivos" multiple>
+      {% if t and t.archivos.count() > 0 %}
+      <div class="form-hint">Ya existen {{ t.archivos.count() }} archivo(s) adjuntos. Puedes gestionarlos desde la ficha del tutorial tras guardar.</div>
+      {% endif %}
+    </div>
+
+    <div class="form-row">
+      <label style="display:flex; align-items:center; gap:8px; font-weight:500;">
+        <input type="checkbox" name="destacado" style="width:auto;" {{ 'checked' if t and t.destacado }}> Marcar como destacado
+      </label>
+      <label style="display:flex; align-items:center; gap:8px; font-weight:500;">
+        <input type="checkbox" name="obligatorio" style="width:auto;" {{ 'checked' if t and t.obligatorio }}> Consulta obligatoria
+      </label>
+    </div>
+
+    <div style="display:flex; gap:10px; margin-top:16px;">
+      <button type="submit" class="btn btn-primary" onclick="document.getElementById('contenido-oculto').value = document.getElementById('editor').innerHTML;">Guardar tutorial</button>
+      <a href="{{ url_for('tutoriales') }}" class="btn btn-outline">Cancelar</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

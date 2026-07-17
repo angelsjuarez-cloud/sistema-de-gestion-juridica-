@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block titulo %}{{ cliente.nombre }} · Sistema de Gestión Jurídica{% endblock %}
+{% block eyebrow %}Ficha de cliente{% endblock %}
+{% block encabezado %}{{ cliente.nombre }}{% endblock %}
+
+{% block contenido %}
+<div class="grid grid-2" style="align-items:start;">
+  <div class="card">
+    <div class="card-header"><h3>Expedientes del cliente</h3></div>
+    {% if cliente.expedientes.count() == 0 %}
+      <div class="empty-state"><p>Este cliente aún no tiene expedientes asociados.</p></div>
+    {% else %}
+    <div class="table-wrap">
+    <table>
+      <thead><tr><th>Número</th><th>Título</th><th>Tipo</th><th>Estado</th></tr></thead>
+      <tbody>
+        {% for e in cliente.expedientes %}
+        <tr>
+          <td><a href="{{ url_for('ver_expediente', id=e.id) }}" class="mono"><strong>{{ e.numero }}</strong></a></td>
+          <td>{{ e.titulo }}</td>
+          <td>{{ e.tipo_caso }}</td>
+          <td><span class="badge badge-{{ e.estado|lower|replace(' ','-') }}">{{ e.estado }}</span></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    </div>
+    {% endif %}
+    <div class="divider"></div>
+    <a href="{{ url_for('nuevo_expediente') }}" class="btn btn-dorado btn-sm">+ Nuevo expediente para este cliente</a>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><h3>Datos de contacto</h3></div>
+    <ul class="list-simple">
+      <li><span>Tipo</span><strong>{{ cliente.tipo }}</strong></li>
+      <li><span>Identificación</span><strong class="mono">{{ cliente.identificacion or '—' }}</strong></li>
+      <li><span>Teléfono</span><strong>{{ cliente.telefono or '—' }}</strong></li>
+      <li><span>Correo</span><strong>{{ cliente.email or '—' }}</strong></li>
+      <li><span>Dirección</span><strong style="text-align:right;">{{ cliente.direccion or '—' }}</strong></li>
+    </ul>
+    {% if cliente.notas %}
+    <div class="divider"></div>
+    <p style="font-size:13px; color:var(--gris-texto);">{{ cliente.notas }}</p>
+    {% endif %}
+    <div class="divider"></div>
+    <div style="display:flex; gap:8px;">
+      <a href="{{ url_for('editar_cliente', id=cliente.id) }}" class="btn btn-outline btn-sm">Editar</a>
+      {% if current_user.es_admin %}
+      <form method="post" action="{{ url_for('eliminar_cliente', id=cliente.id) }}" onsubmit="return confirm('¿Eliminar este cliente y todos sus expedientes asociados?');">
+        <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+      </form>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

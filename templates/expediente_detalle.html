@@ -1,0 +1,240 @@
+{% extends "base.html" %}
+{% block titulo %}{{ e.numero }} · Sistema de Gestión Jurídica{% endblock %}
+{% block eyebrow %}Expediente {{ e.numero }}{% endblock %}
+{% block encabezado %}{{ e.titulo }}{% endblock %}
+
+{% block contenido %}
+
+<div class="card" style="margin-bottom:20px;">
+  <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:14px;">
+    <div class="chip-row">
+      <span class="badge badge-{{ e.estado|lower|replace(' ','-') }}">{{ e.estado }}</span>
+      <span class="badge badge-{{ e.prioridad|lower }}">Prioridad {{ e.prioridad }}</span>
+      <span class="badge" style="background:var(--marfil-2);color:var(--tinta-950);">{{ e.tipo_caso }}</span>
+    </div>
+    <div style="display:flex; gap:8px;">
+      <a href="{{ url_for('editar_expediente', id=e.id) }}" class="btn btn-outline btn-sm">Editar expediente</a>
+      {% if current_user.es_admin %}
+      <form method="post" action="{{ url_for('eliminar_expediente', id=e.id) }}" onsubmit="return confirm('¿Eliminar este expediente de forma permanente?');">
+        <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+      </form>
+      {% endif %}
+    </div>
+  </div>
+  <div class="divider"></div>
+  <div class="grid grid-4">
+    <div><div class="label" style="font-size:11px;color:var(--gris-texto);text-transform:uppercase;">Cliente</div><strong><a href="{{ url_for('ver_cliente', id=e.cliente.id) }}">{{ e.cliente.nombre }}</a></strong></div>
+    <div><div class="label" style="font-size:11px;color:var(--gris-texto);text-transform:uppercase;">Abogado responsable</div><strong>{{ e.abogado_responsable.nombre if e.abogado_responsable else 'Sin asignar' }}</strong></div>
+    <div><div class="label" style="font-size:11px;color:var(--gris-texto);text-transform:uppercase;">Juzgado</div><strong>{{ e.juzgado or '—' }}</strong></div>
+    <div><div class="label" style="font-size:11px;color:var(--gris-texto);text-transform:uppercase;">Contraparte</div><strong>{{ e.contraparte or '—' }}</strong></div>
+  </div>
+  {% if e.descripcion %}
+  <div class="divider"></div>
+  <p style="font-size:13.4px; color:var(--gris-texto);">{{ e.descripcion }}</p>
+  {% endif %}
+</div>
+
+<div class="tabs no-print">
+  <a class="tab-link active" data-tab="historial" onclick="mostrarTab('historial', this)">Historial de movimientos</a>
+  <a class="tab-link" data-tab="documentos" onclick="mostrarTab('documentos', this)">Documentos ({{ e.documentos.count() }})</a>
+  <a class="tab-link" data-tab="audiencias" onclick="mostrarTab('audiencias', this)">Audiencias ({{ e.audiencias.count() }})</a>
+  {% if current_user.es_admin %}
+  <a class="tab-link" data-tab="pagos" onclick="mostrarTab('pagos', this)">Pagos</a>
+  {% endif %}
+</div>
+
+<!-- HISTORIAL -->
+<div id="tab-historial" class="tab-pane">
+  <div class="grid grid-2" style="align-items:start;">
+    <div class="card">
+      <div class="card-header"><h3>Bitácora del expediente</h3></div>
+      {% if e.movimientos.count() == 0 %}
+        <div class="empty-state"><p>Sin movimientos registrados.</p></div>
+      {% else %}
+      <div class="timeline">
+        {% for m in e.movimientos %}
+        <div class="timeline-item">
+          <div class="fecha">{{ m.fecha.strftime('%d de %B %Y, %H:%M') }} · {{ m.tipo }}</div>
+          <div class="desc">{{ m.descripcion }}</div>
+          <div class="autor">{{ m.autor or 'Sistema' }}</div>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+    <div class="card">
+      <div class="card-header"><h3>Agregar observación / movimiento</h3></div>
+      <form method="post" action="{{ url_for('agregar_movimiento', id=e.id) }}">
+        <div class="form-group">
+          <label>Tipo</label>
+          <select name="tipo">
+            <option>Observación</option>
+            <option>Actuación</option>
+            <option>Notificación</option>
+            <option>Cambio de estado</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Descripción</label>
+          <textarea name="descripcion" placeholder="Describe el movimiento o la observación…" required></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Guardar en bitácora</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- DOCUMENTOS -->
+<div id="tab-documentos" class="tab-pane" style="display:none;">
+  <div class="grid grid-2" style="align-items:start;">
+    <div class="card">
+      <div class="card-header"><h3>Documentos adjuntos</h3></div>
+      {% if e.documentos.count() == 0 %}
+        <div class="empty-state"><p>No hay documentos adjuntos aún.</p></div>
+      {% else %}
+      <div class="table-wrap">
+      <table>
+        <thead><tr><th>Archivo</th><th>Categoría</th><th>Subido por</th><th></th></tr></thead>
+        <tbody>
+          {% for d in e.documentos %}
+          <tr>
+            <td>{{ d.nombre_archivo }}<br><span style="font-size:11px;color:var(--gris-texto);">{{ d.tamano_kb }} KB · {{ d.subido_en.strftime('%d/%m/%Y') }}</span></td>
+            <td><span class="badge" style="background:var(--marfil-2);color:var(--tinta-950);">{{ d.categoria }}</span></td>
+            <td>{{ d.subido_por }}</td>
+            <td style="text-align:right; white-space:nowrap;">
+              <a href="{{ url_for('descargar_documento', doc_id=d.id) }}" class="btn btn-outline btn-sm">Descargar</a>
+              <form method="post" action="{{ url_for('eliminar_documento', doc_id=d.id) }}" style="display:inline;" onsubmit="return confirm('¿Eliminar este documento?');">
+                <button class="btn btn-danger btn-sm">✕</button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      </div>
+      {% endif %}
+    </div>
+    <div class="card">
+      <div class="card-header"><h3>Subir documento</h3></div>
+      <form method="post" action="{{ url_for('subir_documento', id=e.id) }}" enctype="multipart/form-data">
+        <div class="form-group">
+          <label>Categoría</label>
+          <select name="categoria">
+            {% for cat in ['Demanda','Contrato','Prueba','Resolución','Identificación','Poder notarial','General'] %}
+            <option>{{ cat }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Archivo</label>
+          <input type="file" name="archivo" required>
+          <div class="form-hint">Tamaño máximo 25 MB por archivo.</div>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Subir documento</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- AUDIENCIAS -->
+<div id="tab-audiencias" class="tab-pane" style="display:none;">
+  <div class="grid grid-2" style="align-items:start;">
+    <div class="card">
+      <div class="card-header"><h3>Audiencias programadas</h3></div>
+      {% if e.audiencias.count() == 0 %}
+        <div class="empty-state"><p>No hay audiencias registradas para este expediente.</p></div>
+      {% else %}
+      <div class="table-wrap">
+      <table>
+        <thead><tr><th>Tipo</th><th>Fecha</th><th>Lugar</th><th>Estado</th></tr></thead>
+        <tbody>
+          {% for a in e.audiencias %}
+          <tr>
+            <td>{{ a.tipo }}</td>
+            <td class="mono">{{ a.fecha_hora.strftime('%d/%m/%Y %H:%M') }}</td>
+            <td>{{ a.lugar or '—' }}</td>
+            <td>
+              <form method="post" action="{{ url_for('actualizar_audiencia', id=a.id) }}" style="display:flex; gap:6px; align-items:center;">
+                <select name="estado" onchange="this.form.submit()" style="padding:4px 8px; font-size:11.5px;">
+                  {% for est in ['Programada','Realizada','Reprogramada','Cancelada'] %}
+                  <option {{ 'selected' if a.estado==est }}>{{ est }}</option>
+                  {% endfor %}
+                </select>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      </div>
+      {% endif %}
+    </div>
+    <div class="card">
+      <div class="card-header"><h3>Programar audiencia</h3></div>
+      <form method="post" action="{{ url_for('nueva_audiencia', id=e.id) }}">
+        <div class="form-group">
+          <label>Tipo de audiencia</label>
+          <input type="text" name="tipo" placeholder="Conciliación, Juicio, Preliminar…" required>
+        </div>
+        <div class="form-group">
+          <label>Fecha y hora</label>
+          <input type="datetime-local" name="fecha_hora" required>
+        </div>
+        <div class="form-group">
+          <label>Lugar</label>
+          <input type="text" name="lugar" placeholder="Sala, juzgado…">
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Programar audiencia</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- PAGOS -->
+{% if current_user.es_admin %}
+<div id="tab-pagos" class="tab-pane" style="display:none;">
+  <div class="card">
+    <div class="card-header">
+      <h3>Pagos del expediente</h3>
+      <div class="kpi-inline">
+        <div class="item"><div class="n" style="color:var(--salvia);">${{ "%.0f"|format(e.total_pagado) }}</div><div class="l">Cobrado</div></div>
+        <div class="item"><div class="n" style="color:var(--granate);">${{ "%.0f"|format(e.total_pendiente) }}</div><div class="l">Pendiente</div></div>
+      </div>
+    </div>
+    {% if e.pagos.count() == 0 %}
+      <div class="empty-state"><p>No hay pagos registrados. Agrégalos desde el módulo de Pagos.</p></div>
+    {% else %}
+    <div class="table-wrap">
+    <table>
+      <thead><tr><th>Concepto</th><th>Monto</th><th>Emisión</th><th>Estado</th></tr></thead>
+      <tbody>
+        {% for p in e.pagos %}
+        <tr>
+          <td>{{ p.concepto }}</td>
+          <td class="mono">${{ "%.2f"|format(p.monto) }}</td>
+          <td>{{ p.fecha_emision.strftime('%d/%m/%Y') if p.fecha_emision else '—' }}</td>
+          <td><span class="badge badge-{{ p.estado|lower }}">{{ p.estado }}</span></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    </div>
+    {% endif %}
+    <div class="divider"></div>
+    <a href="{{ url_for('pagos') }}" class="btn btn-outline btn-sm">Ir al módulo de pagos</a>
+  </div>
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+function mostrarTab(nombre, el){
+  document.querySelectorAll('.tab-pane').forEach(p => p.style.display = 'none');
+  document.getElementById('tab-' + nombre).style.display = 'block';
+  document.querySelectorAll('.tab-link').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+}
+</script>
+{% endblock %}

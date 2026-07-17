@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block titulo %}Audiencias · Sistema de Gestión Jurídica{% endblock %}
+{% block eyebrow %}Gestión{% endblock %}
+{% block encabezado %}Audiencias{% endblock %}
+
+{% block contenido %}
+<div class="card">
+  <div class="card-header">
+    <h3>{{ audiencias|length }} audiencia(s) registradas</h3>
+    <span class="form-hint">Para programar una nueva audiencia, ábrela desde el expediente correspondiente.</span>
+  </div>
+  {% if not audiencias %}
+  <div class="empty-state">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2 2 7l10 5 10-5-10-5z"/></svg>
+    <p>No hay audiencias registradas.</p>
+  </div>
+  {% else %}
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Fecha</th><th>Tipo</th><th>Expediente</th><th>Lugar</th><th>Estado</th>{% if current_user.es_admin %}<th></th>{% endif %}</tr></thead>
+    <tbody>
+      {% for a in audiencias %}
+      <tr>
+        <td class="mono" onclick="window.location='{{ url_for('ver_expediente', id=a.expediente_id) }}'" style="cursor:pointer;">{{ a.fecha_hora.strftime('%d/%m/%Y %H:%M') }}</td>
+        <td onclick="window.location='{{ url_for('ver_expediente', id=a.expediente_id) }}'" style="cursor:pointer;">{{ a.tipo }}</td>
+        <td class="mono" onclick="window.location='{{ url_for('ver_expediente', id=a.expediente_id) }}'" style="cursor:pointer;">{{ a.expediente.numero }}</td>
+        <td onclick="window.location='{{ url_for('ver_expediente', id=a.expediente_id) }}'" style="cursor:pointer;">{{ a.lugar or '—' }}</td>
+        <td>
+          <span class="badge {{ 'badge-abierto' if a.estado=='Programada' else 'badge-concluido' if a.estado=='Realizada' else 'badge-en-espera' if a.estado=='Reprogramada' else 'badge-cancelado' }}">{{ a.estado }}</span>
+        </td>
+        {% if current_user.es_admin %}
+        <td style="text-align:right;">
+          <form method="post" action="{{ url_for('eliminar_audiencia', id=a.id) }}" onsubmit="return confirm('¿Eliminar esta audiencia?');">
+            <button class="btn btn-danger btn-sm">✕</button>
+          </form>
+        </td>
+        {% endif %}
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

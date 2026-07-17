@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block titulo %}Editar tarea · Sistema de Gestión Jurídica{% endblock %}
+{% block eyebrow %}Tareas{% endblock %}
+{% block encabezado %}Editar tarea{% endblock %}
+
+{% block contenido %}
+<div class="card" style="max-width:640px;">
+  <form method="post">
+    <div class="form-group">
+      <label>Título *</label>
+      <input type="text" name="titulo" required value="{{ t.titulo }}">
+    </div>
+    <div class="form-group">
+      <label>Descripción</label>
+      <textarea name="descripcion">{{ t.descripcion or '' }}</textarea>
+    </div>
+    <div class="form-group">
+      <label>Expediente relacionado</label>
+      <select name="expediente_id">
+        <option value="">Ninguno / tarea general</option>
+        {% for e in expedientes %}
+        <option value="{{ e.id }}" {{ 'selected' if t.expediente_id==e.id }}>{{ e.numero }} — {{ e.titulo }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Responsable(s) *</label>
+      <select name="responsables" multiple required size="5">
+        {% set ids_actuales = t.responsables|map(attribute='id')|list %}
+        {% for u in usuarios %}
+        <option value="{{ u.id }}" {{ 'selected' if u.id in ids_actuales }}>{{ u.nombre }} ({{ u.rol }})</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Fecha límite</label>
+        <input type="date" name="fecha_limite" value="{{ t.fecha_limite.isoformat() if t.fecha_limite else '' }}">
+      </div>
+      <div class="form-group">
+        <label>Prioridad</label>
+        <select name="prioridad">
+          {% for p in ['Alta','Media','Baja'] %}
+          <option {{ 'selected' if t.prioridad==p }}>{{ p }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+    <div style="display:flex; gap:10px; margin-top:6px;">
+      <button type="submit" class="btn btn-primary">Guardar cambios</button>
+      <a href="{{ url_for('ver_tarea', id=t.id) }}" class="btn btn-outline">Cancelar</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

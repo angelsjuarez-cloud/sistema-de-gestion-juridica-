@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block titulo %}Tutoriales · Sistema de Gestión Jurídica{% endblock %}
+{% block eyebrow %}Recursos{% endblock %}
+{% block encabezado %}Tutoriales y capacitación{% endblock %}
+
+{% block contenido %}
+<div class="card">
+  <div class="card-header">
+    <h3>{{ tutoriales|length }} tutorial(es)</h3>
+    <div style="display:flex; gap:10px;">
+      <form method="get" class="search-quick" style="min-width:220px;">
+        {% if categoria %}<input type="hidden" name="categoria" value="{{ categoria }}">{% endif %}
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input type="text" name="q" value="{{ q }}" placeholder="Buscar tutorial…">
+      </form>
+      {% if current_user.es_admin %}
+      <a href="{{ url_for('nuevo_tutorial') }}" class="btn btn-dorado">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+        Nuevo tutorial
+      </a>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="chip-row" style="margin-bottom:20px;">
+    <a href="{{ url_for('tutoriales', q=q) }}" class="filter-chip {{ 'active' if not categoria }}">Todas las categorías</a>
+    {% for cat in categorias %}
+    <a href="{{ url_for('tutoriales', categoria=cat, q=q) }}" class="filter-chip {{ 'active' if categoria==cat }}">{{ cat }}</a>
+    {% endfor %}
+  </div>
+
+  {% if not tutoriales %}
+  <div class="empty-state">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+    <p>No se encontraron tutoriales con esos criterios.</p>
+  </div>
+  {% else %}
+  <div class="grid grid-3">
+    {% for t in tutoriales %}
+    <a href="{{ url_for('ver_tutorial', id=t.id) }}" class="card" style="display:block; text-decoration:none;">
+      <div class="chip-row" style="margin-bottom:10px;">
+        <span class="badge" style="background:var(--marfil-2); color:var(--tinta-950);">{{ t.categoria }}</span>
+        {% if t.destacado %}<span class="badge badge-dorado" style="background:#fdf3e0;color:#a3720e;">★ Destacado</span>{% endif %}
+        {% if t.obligatorio %}<span class="badge badge-alta">Obligatorio</span>{% endif %}
+      </div>
+      <h3 style="font-size:15.5px; margin:0 0 8px;">{{ t.titulo }}</h3>
+      <p style="font-size:12.6px; color:var(--gris-texto); margin:0;">
+        {{ t.contenido|striptags|truncate(110) }}
+      </p>
+      <div class="divider"></div>
+      <span style="font-size:11.5px; color:var(--gris-texto);">Actualizado el {{ t.actualizado_en.strftime('%d/%m/%Y') }} · {{ t.autor.nombre if t.autor else 'Despacho' }}</span>
+    </a>
+    {% endfor %}
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

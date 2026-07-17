@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+{% block titulo %}Panel principal · Sistema de Gestión Jurídica{% endblock %}
+{% block eyebrow %}Bienvenido(a), {{ current_user.nombre.split(' ')[0] }}{% endblock %}
+{% block encabezado %}Panel principal{% endblock %}
+
+{% block contenido %}
+
+{% if current_user.es_admin and alertas_recientes %}
+<div class="card" style="margin-bottom:22px; border-left:4px solid var(--granate);">
+  <div class="card-header">
+    <h3>🔔 Centro de alertas — atención requerida</h3>
+    <a href="{{ url_for('alertas') }}" class="btn btn-outline btn-sm">Ver todas las alertas</a>
+  </div>
+  <ul class="list-simple">
+    {% for a in alertas_recientes %}
+    <li>
+      <div>
+        <span class="badge badge-{{ 'alta' if a.prioridad=='Alta' else 'media' if a.prioridad=='Media' else 'baja' }}">{{ a.prioridad }}</span>
+        <span style="margin-left:8px;">{{ a.mensaje }}</span>
+      </div>
+      <form method="post" action="{{ url_for('revisar_alerta', id=a.id) }}">
+        <button class="btn btn-outline btn-sm">Marcar revisada</button>
+      </form>
+    </li>
+    {% endfor %}
+  </ul>
+</div>
+{% endif %}
+
+<div class="grid grid-4" style="margin-bottom:22px;">
+  <div class="stat-card acento-tinta">
+    <div class="label">Expedientes activos</div>
+    <div class="valor">{{ expedientes_activos }}</div>
+    <div class="detalle">{{ total_expedientes }} expedientes en total</div>
+  </div>
+  {% if current_user.es_admin %}
+  <div class="stat-card acento-salvia">
+    <div class="label">Ingresos del mes</div>
+    <div class="valor">${{ "%.0f"|format(ingresos_mes) }}</div>
+    <div class="detalle">Pagos cobrados en {{ hoy.strftime('%B %Y') }}</div>
+  </div>
+  <div class="stat-card acento-granate">
+    <div class="label">Pagos pendientes</div>
+    <div class="valor">${{ "%.0f"|format(pagos_pendientes_total) }}</div>
+    <div class="detalle">Por cobrar en todos los expedientes</div>
+  </div>
+  {% else %}
+  <div class="stat-card acento-salvia">
+    <div class="label">Mis tareas pendientes</div>
+    <div class="valor">{{ mis_tareas_pendientes }}</div>
+    <div class="detalle">Asignadas a ti, sin completar</div>
+  </div>
+  <div class="stat-card acento-granate">
+    <div class="label">Expedientes concluidos</div>
+    <div class="valor">{{ expedientes_concluidos }}</div>
+    <div class="detalle">Casos cerrados exitosamente</div>
+  </div>
+  {% endif %}
+  <div class="stat-card acento-dorado">
+    <div class="label">Clientes registrados</div>
+    <div class="valor">{{ total_clientes }}</div>
+    <div class="detalle">{{ expedientes_concluidos }} expedientes concluidos</div>
+  </div>
+</div>
+
+<div class="grid grid-2" style="align-items:start; margin-bottom:22px;">
+
+  <div class="card">
+    <div class="card-header">
+      <h3>Próximas audiencias y citas · 7 días</h3>
+      <a href="{{ url_for('calendario') }}" class="btn btn-outline btn-sm">Ver calendario</a>
+    </div>
+    {% if not proximas_audiencias and not proximas_citas %}
+      <div class="empty-state">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18"/></svg>
+        <p>No hay audiencias ni citas programadas para los próximos 7 días.</p>
+      </div>
+    {% else %}
+      <ul class="list-simple">
+        {% for a in proximas_audiencias %}
+        <li>
+          <div>
+            <strong>⚖ {{ a.tipo }}</strong><br>
+            <span style="font-size:12px;color:var(--gris-texto)">Expediente {{ a.expediente.numero }} · {{ a.lugar or 'Sin lugar definido' }}</span>
+          </div>
+          <span class="mono" style="font-size:12.5px;white-space:nowrap;">{{ a.fecha_hora.strftime('%d %b, %H:%M') }}</span>
+        </li>
+        {% endfor %}
+        {% for c in proximas_citas %}
+        <li>
+          <div>
+            <strong>📅 {{ c.titulo }}</strong><br>
+            <span style="font-size:12px;color:var(--gris-texto)">{{ c.cliente.nombre if c.cliente else 'Cita interna' }}</span>
+          </div>
+          <span class="mono" style="font-size:12.5px;white-space:nowrap;">{{ c.fecha_hora.strftime('%d %b, %H:%M') }}</span>
+        </li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h3>Recordatorios de plazos</h3>
+      <a href="{{ url_for('tareas') }}" class="btn btn-outline btn-sm">Ver tareas</a>
+    </div>
+    {% if not tareas_urgentes %}
+      <div class="empty-state">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 11l2.5 2.5L16 8.5"/><rect x="3" y="3" width="18" height="18" rx="3"/></svg>
+        <p>No hay plazos legales próximos a vencer.</p>
+      </div>
+    {% else %}
+      <ul class="list-simple">
+        {% for t in tareas_urgentes %}
+        <li>
+          <div>
+            <strong>{{ t.titulo }}</strong><br>
+            <span style="font-size:12px;color:var(--gris-texto)">{{ t.expediente.numero if t.expediente else 'General' }} · {{ t.asignado.nombre if t.asignado else 'Sin asignar' }}</span>
+          </div>
+          <span class="badge badge-{{ 'alta' if t.fecha_limite and t.fecha_limite <= hoy else 'media' }}">
+            {{ t.fecha_limite.strftime('%d %b') if t.fecha_limite else '—' }}
+          </span>
+        </li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  </div>
+</div>
+
+<div class="grid grid-2" style="align-items:start;">
+  <div class="card">
+    <div class="card-header"><h3>Actividad reciente en expedientes</h3></div>
+    {% if not ultimos_movimientos %}
+      <div class="empty-state"><p>Aún no hay movimientos registrados.</p></div>
+    {% else %}
+      <div class="timeline">
+        {% for m in ultimos_movimientos %}
+        <div class="timeline-item">
+          <div class="fecha">{{ m.fecha.strftime('%d de %B, %H:%M') }}</div>
+          <div class="desc">{{ m.descripcion }} <span class="mono" style="color:var(--gris-texto);font-size:11.5px;">({{ m.expediente.numero }})</span></div>
+          <div class="autor">{{ m.autor or 'Sistema' }}</div>
+        </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <div class="card-header"><h3>Expedientes por tipo de caso</h3></div>
+    {% set max_tipo = por_tipo|map(attribute=1)|max if por_tipo else 1 %}
+    <div class="bar-chart">
+      {% for tipo, cantidad in por_tipo %}
+      <div class="bar-row">
+        <span>{{ tipo }}</span>
+        <div class="bar-track"><div class="bar-fill" style="width: {{ (cantidad / max_tipo * 100) if max_tipo else 0 }}%"></div></div>
+        <span class="mono" style="text-align:right;">{{ cantidad }}</span>
+      </div>
+      {% else %}
+      <div class="empty-state"><p>No hay expedientes registrados aún.</p></div>
+      {% endfor %}
+    </div>
+    <div class="divider"></div>
+    <div class="kpi-inline">
+      {% for estado, cantidad in por_estado %}
+      <div class="item">
+        <div class="n">{{ cantidad }}</div>
+        <div class="l">{{ estado }}</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+{% endblock %}
