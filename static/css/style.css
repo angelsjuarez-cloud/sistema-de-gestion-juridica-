@@ -80,7 +80,7 @@ a{ color: inherit; text-decoration: none; }
 .brand-text .titulo{ font-family:'Fraunces',serif; font-size:15.5px; line-height:1.2; font-weight:600; color:var(--marfil);}
 .brand-text .subtitulo{ font-size:10.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--dorado); margin-top:3px;}
 
-.nav-section{ padding: 14px 12px; overflow-y:auto; flex:1; }
+.nav-section{ padding: 14px 12px; overflow-y:auto; flex:1; min-height:0; }
 .nav-label{ font-size:10.5px; text-transform:uppercase; letter-spacing:.09em; color:rgba(246,243,234,.4); padding: 14px 10px 6px;}
 .nav-item{
   display:flex; align-items:center; gap:11px;
@@ -427,9 +427,9 @@ tbody tr:last-child td{ border-bottom:none; }
   .btn{ padding: 9px 13px; font-size: 12.8px; }
   .demo-creds{ font-size: 11px; }
 }
-/* Este margen solo se aplicará en pantallas de computadora (de 1024px de ancho en adelante) */
-@media (min-width: 1024px) {
-    .ajuste-pantalla-tareas {
-        margin-top: 30px; /* Ajusta este número si necesitas que baje más o menos en desktop */
+/* --- Corrección responsiva de espacio para pantallas de computadora (No afecta al móvil) --- */
+@media (min-width: 881px) {
+    .page-body {
+        padding-top: 24px; /* Crea el espacio necesario debajo de la cabecera blanca en PC */
     }
 }
