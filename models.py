@@ -23,8 +23,14 @@ class Despacho(db.Model):
     activo = db.Column(db.Boolean, default=True)  # permite suspender un despacho sin borrar sus datos
     creado_en = db.Column(db.DateTime, default=datetime.utcnow)
 
-    usuarios = db.relationship("Usuario", backref="despacho", lazy="dynamic")
+    # --- Preparación para cobro futuro (no se usa/valida todavía en ningún lado) ---
+    plan = db.Column(db.String(30), default="Piloto")
+    estado_pago = db.Column(db.String(20), default="activo")
+    fecha_fin_prueba = db.Column(db.Date, nullable=True)
+    stripe_customer_id = db.Column(db.String(120), nullable=True)
+    stripe_subscription_id = db.Column(db.String(120), nullable=True)
 
+    usuarios = db.relationship("Usuario", backref="despacho", lazy="dynamic")
 
 # ---------------------------------------------------------------------------
 # Tabla de asociación: tareas <-> responsables (varios a varios)
