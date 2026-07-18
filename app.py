@@ -350,9 +350,13 @@ def registro_despacho():
             return render_template("registro.html", nombre_despacho=nombre_despacho,
                                     nombre_admin=nombre_admin, email=email)
 
-        despacho = Despacho(nombre=nombre_despacho, slug=_generar_slug(nombre_despacho))
-        db.session.add(despacho)
-        db.session.flush()
+        despacho = Despacho(
+        nombre=nombre_despacho,
+        slug=_generar_slug(nombre_despacho),
+        plan="Piloto",
+        estado_pago="activo",  # no se valida en ningún lado todavía, es solo referencia
+        fecha_fin_prueba=date.today() + timedelta(days=60),
+    )
 
         admin = Usuario(despacho_id=despacho.id, nombre=nombre_admin, email=email, rol="Administrador")
         admin.set_password(password)
