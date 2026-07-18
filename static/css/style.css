@@ -411,8 +411,26 @@ tbody tr:last-child td{ border-bottom:none; }
   .list-simple li > form{ width:100%; }
   .list-simple li > form .btn{ width:100%; }
 
-  /* Calendario: celdas más compactas */
-  #grid-calendario > div{ min-height: 58px !important; font-size:10.5px !important; }
+  /* Tablas: pista visual de que se puede deslizar para ver más columnas */
+  .table-wrap{ position: relative; }
+  .table-wrap::before{
+    content: '⇠ desliza para ver más ⇢';
+    display: block;
+    font-size: 10.5px;
+    color: var(--gris-texto);
+    text-align: center;
+    padding: 2px 0 8px;
+    letter-spacing: .02em;
+  }
+
+  /* Calendario: contenedor propio con scroll horizontal, celdas de tamaño legible */
+  .calendar-scroll{
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 4px;
+  }
+  #grid-calendario{ min-width: 620px; }
+  #grid-calendario > div{ min-height: 64px !important; font-size: 11px !important; }
 
   /* Filas de tarjetas en enlaces/tutoriales ya son grid-3 -> 1 columna arriba */
 }
