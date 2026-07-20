@@ -29,7 +29,9 @@ class Despacho(db.Model):
     fecha_fin_prueba = db.Column(db.Date, nullable=True)
     stripe_customer_id = db.Column(db.String(120), nullable=True)
     stripe_subscription_id = db.Column(db.String(120), nullable=True)
-
+# --- Constancia de aceptación del Aviso de Privacidad ---
+    acepto_aviso_privacidad = db.Column(db.Boolean, default=False)
+    fecha_aceptacion_aviso = db.Column(db.DateTime, nullable=True)
     usuarios = db.relationship("Usuario", backref="despacho", lazy="dynamic")
 
 # ---------------------------------------------------------------------------

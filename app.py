@@ -335,6 +335,8 @@ def registro_despacho():
         confirmar = request.form.get("confirmar", "")
 
         errores = []
+        if not request.form.get("acepto_privacidad"):
+            errores.append("Debes leer y aceptar el Aviso de Privacidad para continuar.")
         if not nombre_despacho or not nombre_admin or not email or not password:
             errores.append("Todos los campos son obligatorios.")
         if password != confirmar:
@@ -351,11 +353,13 @@ def registro_despacho():
                                     nombre_admin=nombre_admin, email=email)
 
         despacho = Despacho(
-        nombre=nombre_despacho,
-        slug=_generar_slug(nombre_despacho),
-        plan="Piloto",
-        estado_pago="activo",  # no se valida en ningún lado todavía, es solo referencia
-        fecha_fin_prueba=date.today() + timedelta(days=60),
+            nombre=nombre_despacho,
+            slug=_generar_slug(nombre_despacho),
+            plan="Piloto",
+            estado_pago="activo",  # no se valida en ningún lado todavía, es solo referencia
+            fecha_fin_prueba=date.today() + timedelta(days=60),
+            acepto_aviso_privacidad=True,
+            fecha_aceptacion_aviso=datetime.utcnow(),
     )
 
         admin = Usuario(despacho_id=despacho.id, nombre=nombre_admin, email=email, rol="Administrador")

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aviso de Privacidad · Sistema de Gestión Jurídica</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<style>
+  .legal-wrap{ max-width: 780px; margin: 0 auto; padding: 40px 20px 80px; }
+  .legal-wrap h1{ font-size: 26px; margin-bottom: 6px; }
+  .legal-wrap .fecha{ font-size: 12.5px; color: var(--gris-texto); margin-bottom: 30px; }
+  .legal-wrap h2{ font-size: 17px; margin-top: 32px; margin-bottom: 10px; }
+  .legal-wrap p, .legal-wrap li{ font-size: 14px; line-height: 1.75; color: var(--tinta-950); }
+  .legal-wrap ul{ padding-left: 20px; }
+  .legal-wrap .nota{
+    background: var(--marfil); border-left: 4px solid var(--dorado); border-radius: 8px;
+    padding: 14px 18px; margin: 20px 0; font-size: 13.3px; color: var(--gris-texto);
+  }
+  .legal-wrap a.volver{ display:inline-block; margin-bottom: 20px; font-size: 13px; font-weight:600; color: var(--dorado-oscuro); }
+</style>
+</head>
+<body style="background:var(--papel);">
+<div class="legal-wrap">
+  <a href="javascript:history.back()" class="volver">← Volver</a>
+  <h1>Aviso de Privacidad</h1>
+  <div class="fecha">Última actualización: {{ hoy.strftime('%d de %B de %Y') if hoy else '' }}</div>
+
+  <div class="nota">
+    <b>Nota:</b> este es un aviso de privacidad de referencia, orientado al funcionamiento de esta
+    plataforma. No sustituye la asesoría de un profesional del derecho. Si tu despacho va a operar
+    de forma comercial, te recomendamos que lo revise un abogado especializado en protección de
+    datos personales antes de su uso definitivo.
+  </div>
+
+  <h2>1. Identidad y domicilio del responsable</h2>
+  <p>
+    El presente Aviso de Privacidad regula el tratamiento de los datos personales recabados a
+    través del "Sistema de Gestión Integral para Despachos Jurídicos" (en adelante, "la
+    Plataforma"), operado por <b>Ángel Enrique Sabinas Juárez</b>, con domicilio en
+    <b>Veracruz, Veracruz, México</b> y correo de contacto <b>angel.sjuarez@hotmail.com</b>, en cumplimiento de la Ley
+    Federal de Protección de Datos Personales en Posesión de los Particulares (LFPDPPP) y su
+    Reglamento.
+  </p>
+
+  <h2>2. Dos tipos de datos personales que maneja la Plataforma</h2>
+  <p>Es importante distinguir dos niveles distintos de información:</p>
+  <ul>
+    <li>
+      <b>Datos de las personas que usan directamente la Plataforma</b> (administradores, abogados y
+      asistentes de cada despacho registrado): nombre, correo electrónico, contraseña (almacenada
+      de forma cifrada), rol dentro del despacho, y registros de actividad dentro del sistema
+      (bitácora de auditoría).
+    </li>
+    <li>
+      <b>Datos de los clientes de cada despacho</b>, capturados por el propio despacho dentro de
+      sus expedientes (nombre, datos de contacto, información de sus asuntos legales, documentos
+      adjuntos, pagos, etc.). Respecto de estos datos, <b>cada despacho es el "Responsable" del
+      tratamiento</b> frente a sus propios clientes, y la Plataforma actúa únicamente como
+      "Encargado", es decir, como el proveedor tecnológico que almacena y procesa esa información
+      por instrucción del despacho, sin usarla para fines propios.
+    </li>
+  </ul>
+  <div class="nota">
+    Si tu despacho usa esta Plataforma, es tu responsabilidad como despacho contar con tu propio
+    aviso de privacidad hacia tus clientes, informándoles que su información se procesa mediante
+    un sistema de gestión como este.
+  </div>
+
+  <h2>3. Finalidades del tratamiento</h2>
+  <p>Los datos personales que recaba la Plataforma se utilizan para las siguientes finalidades:</p>
+  <ul>
+    <li>Crear y administrar la cuenta de tu despacho y de sus usuarios.</li>
+    <li>Permitir la gestión de clientes, expedientes, documentos, pagos, audiencias, citas y tareas dentro del sistema.</li>
+    <li>Generar estadísticas, reportes y alertas internas del propio despacho.</li>
+    <li>Mantener la bitácora de auditoría exigida para la trazabilidad de las acciones dentro del sistema.</li>
+    <li>Enviar notificaciones operativas relacionadas con el uso del servicio (por ejemplo, recordatorios de plazos, si el despacho activa esa función).</li>
+    <li>Dar cumplimiento a obligaciones legales aplicables.</li>
+  </ul>
+  <p>No se utilizan los datos personales capturados en la Plataforma con fines de mercadotecnia, publicidad o prospección comercial hacia los clientes de los despachos.</p>
+
+  <h2>4. Transferencia de datos</h2>
+  <p>
+    Los datos se almacenan en servidores de hosting contratados para operar la Plataforma. No se
+    venden, rentan ni transfieren datos personales a terceros con fines distintos a la prestación
+    del servicio, salvo que exista una obligación legal que lo requiera (por ejemplo, un
+    requerimiento de autoridad competente).
+  </p>
+
+  <h2>5. Medidas de seguridad</h2>
+  <p>
+    Las contraseñas de los usuarios se almacenan cifradas (nunca en texto plano). El acceso a la
+    información está restringido por roles (Administrador, Abogado, Asistente), y cada despacho
+    tiene su información completamente aislada de la de cualquier otro despacho registrado en la
+    Plataforma. Se mantiene una bitácora de auditoría de las acciones relevantes realizadas dentro
+    del sistema.
+  </p>
+
+  <h2>6. Derechos ARCO</h2>
+  <p>
+    Como titular de tus datos personales, tienes derecho a Acceder a ellos, Rectificarlos cuando
+    sean inexactos, Cancelarlos cuando consideres que no se requieren para alguna de las
+    finalidades señaladas, u Oponerte al tratamiento de los mismos para fines específicos (derechos
+    ARCO). Para ejercerlos, puedes escribir a <b>angel.sjuarez@hotmail.com</b> indicando tu nombre,
+    despacho al que perteneces, y una descripción clara de tu solicitud.
+  </p>
+  <p>
+    Si tú eres cliente de un despacho que utiliza esta Plataforma (no un usuario directo del
+    sistema), debes dirigir tu solicitud de derechos ARCO directamente a ese despacho, ya que es el
+    Responsable del tratamiento de tu información.
+  </p>
+
+  <h2>7. Uso de cookies</h2>
+  <p>
+    La Plataforma utiliza únicamente cookies técnicas necesarias para mantener tu sesión iniciada.
+    No se utilizan cookies de rastreo publicitario ni de análisis de terceros.
+  </p>
+
+  <h2>8. Cambios a este Aviso de Privacidad</h2>
+  <p>
+    Este aviso puede actualizarse para reflejar cambios en la operación de la Plataforma o en la
+    normatividad aplicable. La versión vigente estará siempre disponible en esta misma página.
+  </p>
+
+  <div class="nota">
+    ¿Dudas sobre este aviso? Escríbenos a <b>angel.sjuarez@hotmail.com</b>.
+  </div>
+</div>
+</body>
+</html>
