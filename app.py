@@ -378,7 +378,10 @@ def registro_despacho():
         return redirect(url_for("dashboard"))
 
     return render_template("registro.html", nombre_despacho="", nombre_admin="", email="")
-
+@app.route("/privacidad")
+def aviso_privacidad():
+    """Página pública del Aviso de Privacidad (no requiere sesión iniciada)."""
+    return render_template("aviso_privacidad.html", hoy=date.today())    
 
 def registrar_auditoria_para(despacho_id, usuario, accion, modulo, registro_id=None, registro_desc="", descripcion=""):
     """Variante de registrar_auditoria() para eventos donde el usuario aún no tiene
