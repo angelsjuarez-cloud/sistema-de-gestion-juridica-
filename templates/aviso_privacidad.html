@@ -21,7 +21,7 @@
 </head>
 <body style="background:var(--papel);">
 <div class="legal-wrap">
-  <a href="javascript:history.back()" class="volver">← Volver</a>
+  <a href="{{ url_for('login') }}" class="volver" onclick="if(window.history.length > 1){ event.preventDefault(); window.history.back(); }">← Volver</a>
   <h1>Aviso de Privacidad</h1>
   <div class="fecha">Última actualización: {{ hoy.strftime('%d de %B de %Y') if hoy else '' }}</div>
 
@@ -95,13 +95,47 @@
     del sistema.
   </p>
 
-  <h2>6. Derechos ARCO</h2>
+  <h2>6. Derechos ARCO y revocación del consentimiento</h2>
   <p>
-    Como titular de tus datos personales, tienes derecho a Acceder a ellos, Rectificarlos cuando
-    sean inexactos, Cancelarlos cuando consideres que no se requieren para alguna de las
-    finalidades señaladas, u Oponerte al tratamiento de los mismos para fines específicos (derechos
-    ARCO). Para ejercerlos, puedes escribir a <b>angel.sjuarez@hotmail.com</b> indicando tu nombre,
-    despacho al que perteneces, y una descripción clara de tu solicitud.
+    Como titular de tus datos personales, la ley te reconoce los siguientes derechos, conocidos
+    como derechos ARCO:
+  </p>
+  <ul>
+    <li>
+      <b>Acceso:</b> derecho a saber qué datos personales tuyos tenemos, para qué los usamos, y de
+      dónde los obtuvimos.
+    </li>
+    <li>
+      <b>Rectificación:</b> derecho a corregir tus datos personales cuando sean inexactos,
+      incompletos o estén desactualizados.
+    </li>
+    <li>
+      <b>Cancelación:</b> derecho a solicitar que eliminemos tus datos de nuestros registros cuando
+      consideres que no son necesarios para las finalidades señaladas en este aviso, sujeto a los
+      periodos de conservación que exija la ley antes de su eliminación definitiva.
+    </li>
+    <li>
+      <b>Oposición:</b> derecho a oponerte al uso de tus datos personales para fines específicos,
+      por una causa legítima, aun cuando hayas otorgado tu consentimiento previamente.
+    </li>
+  </ul>
+  <p>
+    Adicionalmente, tienes derecho a <b>revocar en cualquier momento el consentimiento</b> que
+    hayas otorgado para el tratamiento de tus datos, y a solicitar la <b>limitación de su uso o
+    divulgación</b>.
+  </p>
+  <p>
+    Para ejercer cualquiera de estos derechos, escribe a <b>angel.sjuarez@hotmail.com</b> indicando:
+  </p>
+  <ul>
+    <li>Tu nombre completo y el despacho al que perteneces (si aplica).</li>
+    <li>Una descripción clara y precisa del derecho que deseas ejercer y de los datos a los que se refiere.</li>
+    <li>Cualquier documento que ayude a acreditar tu identidad o tu representación, en caso de solicitarlo en nombre de alguien más.</li>
+  </ul>
+  <p>
+    Tu solicitud será atendida en un plazo máximo de 20 días hábiles a partir de su recepción; si
+    procede, se hará efectiva dentro de los 15 días hábiles siguientes a la fecha en que se te
+    comunique la respuesta, conforme a los plazos previstos en la LFPDPPP.
   </p>
   <p>
     Si tú eres cliente de un despacho que utiliza esta Plataforma (no un usuario directo del
@@ -114,6 +148,25 @@
     La Plataforma utiliza únicamente cookies técnicas necesarias para mantener tu sesión iniciada.
     No se utilizan cookies de rastreo publicitario ni de análisis de terceros.
   </p>
+
+  <h2>8. Principio de transparencia en el tratamiento de tus datos</h2>
+  <p>
+    En cumplimiento del principio de transparencia (o "principio de información") previsto en la
+    Ley Federal de Protección de Datos Personales en Posesión de los Particulares (LFPDPPP), la
+    Plataforma se compromete a informarte de manera clara, accesible y veraz sobre qué datos
+    personales recaba, con qué finalidades, y cómo puedes ejercer tus derechos — tal como se
+    detalla en este mismo Aviso de Privacidad, disponible de forma permanente y gratuita en todo
+    momento.
+  </p>
+  <div class="nota">
+    <b>Nota sobre la Ley General de Transparencia:</b> la Ley General de Transparencia y Acceso a
+    la Información Pública (LGTAIP) aplica a sujetos obligados del sector público (dependencias de
+    gobierno y organismos oficiales), por lo que no resulta aplicable a la operación de esta
+    Plataforma, al tratarse de un servicio privado. En caso de que en el futuro la Plataforma sea
+    contratada o utilizada por alguna entidad gubernamental, podrían aplicar obligaciones
+    adicionales de transparencia propias de esa relación específica, mismas que se harían del
+    conocimiento del despacho correspondiente.
+  </div>
 
   <h2>8. Cambios a este Aviso de Privacidad</h2>
   <p>
