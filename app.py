@@ -360,7 +360,9 @@ def registro_despacho():
             fecha_fin_prueba=date.today() + timedelta(days=60),
             acepto_aviso_privacidad=True,
             fecha_aceptacion_aviso=datetime.utcnow(),
-    )
+        )
+        db.session.add(despacho)
+        db.session.flush()
 
         admin = Usuario(despacho_id=despacho.id, nombre=nombre_admin, email=email, rol="Administrador")
         admin.set_password(password)
